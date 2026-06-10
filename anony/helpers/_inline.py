@@ -6,7 +6,7 @@
 from pyrogram import types
 
 from anony import app, config, lang
-from anony.core.lang import lang_codes
+from anony.core.lang import format_lang_name
 
 
 class Inline:
@@ -66,15 +66,17 @@ class Inline:
 
         return self.ikm(rows)
 
-    def lang_markup(self, _lang: str) -> types.InlineKeyboardMarkup:
+    def lang_markup(
+        self, _lang: str, action: str = "lang_change"
+    ) -> types.InlineKeyboardMarkup:
         langs = lang.get_languages()
 
         buttons = [
             self.ikb(
-                text=f"{name} ({code}) {'✔️' if code == _lang else ''}",
-                callback_data=f"lang_change {code}",
+                text=f"{'✅ ' if code == _lang else ''}{format_lang_name(code)} ({code})",
+                callback_data=f"{action} {code}",
             )
-            for code, name in langs.items()
+            for code in langs
         ]
         rows = [buttons[i : i + 2] for i in range(0, len(buttons), 2)]
         return self.ikm(rows)
@@ -127,7 +129,7 @@ class Inline:
                         text=lang["language"] + " ➜",
                         callback_data="settings",
                     ),
-                    self.ikb(text=lang_codes[language], callback_data="language"),
+                    self.ikb(text=format_lang_name(language), callback_data="language"),
                 ],
             ]
         )

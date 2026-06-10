@@ -25,10 +25,20 @@ async def start(_, message: types.Message):
     if message.from_user.id in app.bl_users and message.from_user.id not in db.notified:
         return await message.reply_text(message.lang["bl_user_notify"])
 
+    private = message.chat.type == enums.ChatType.PRIVATE
+    if private and not await db.is_user(message.from_user.id):
+        current = await db.get_lang(message.chat.id)
+        await message.reply_text(
+            message.lang["lang_choose"],
+            reply_markup=buttons.lang_markup(current, "lang_start"),
+            quote=True,
+        )
+        await utils.send_log(message)
+        return
+
     if len(message.command) > 1 and message.command[1] == "help":
         return await _help(_, message)
 
-    private = message.chat.type == enums.ChatType.PRIVATE
     _text = (
         message.lang["start_pm"].format(message.from_user.first_name, app.name)
         if private
@@ -84,3 +94,9 @@ async def _new_member(_, message: types.Message):
                 return
             await utils.send_log(message, True)
             await db.add_chat(message.chat.id)
+            current = await db.get_lang(message.chat.id)
+            await message.reply_text(
+                message.lang["lang_choose"],
+                reply_markup=buttons.lang_markup(current, "lang_group"),
+                quote=True,
+            )

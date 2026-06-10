@@ -27,6 +27,28 @@ lang_codes = {
     "zh": "中文"
 }
 
+lang_flags = {
+    "ar": "🇸🇦",
+    "de": "🇩🇪",
+    "en": "🇬🇧",
+    "es": "🇪🇸",
+    "fr": "🇫🇷",
+    "hi": "🇮🇳",
+    "ja": "🇯🇵",
+    "my": "🇲🇲",
+    "pa": "🇮🇳",
+    "pt": "🇵🇹",
+    "ru": "🇷🇺",
+    "tr": "🇹🇷",
+    "zh": "🇨🇳",
+}
+
+
+def format_lang_name(code: str) -> str:
+    flag = lang_flags.get(code, "")
+    name = lang_codes.get(code, code)
+    return f"{flag} {name}".strip()
+
 
 class Language:
     """

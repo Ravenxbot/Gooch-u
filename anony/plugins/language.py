@@ -5,8 +5,22 @@
 
 from pyrogram import filters, types
 
-from anony import app, db, lang
+from anony import app, config, db, lang
+from anony.core.lang import format_lang_name
 from anony.helpers import admin_check, buttons
+
+
+async def _send_private_start(query: types.CallbackQuery, lang_dict: dict):
+    if not await db.is_user(query.from_user.id):
+        await db.add_user(query.from_user.id)
+
+    await app.refresh_support_links()
+    await query.message.reply_photo(
+        photo=config.START_IMG,
+        caption=lang_dict["start_pm"].format(query.from_user.first_name, app.name),
+        reply_markup=buttons.start_key(lang_dict, True),
+        quote=False,
+    )
 
 
 @app.on_message(filters.command(["lang", "language"]) & ~app.bl_users)
@@ -17,7 +31,9 @@ async def _lang(_, m: types.Message):
     await m.reply_text(m.lang["lang_choose"], reply_markup=keyboard)
 
 
-@app.on_callback_query(filters.regex(r"^lang(?:_change|uage)") & ~app.bl_users)
+@app.on_callback_query(
+    filters.regex(r"^(?:language|lang_(?:change|start|group))") & ~app.bl_users
+)
 @lang.language()
 @admin_check
 async def _lang_cb(_, query: types.CallbackQuery):
@@ -29,13 +45,21 @@ async def _lang_cb(_, query: types.CallbackQuery):
             query.lang["lang_choose"], reply_markup=keyboard
         )
 
-    _lang = data[1]
+    action, selected = data[0], data[1]
     current = await db.get_lang(query.message.chat.id)
-    if current == _lang:
+    onboarding = action in {"lang_start", "lang_group"}
+    selected_name = format_lang_name(selected)
+    if current == selected and not onboarding:
         return await query.answer(
-            query.lang["lang_same"].format(current), show_alert=True
+            query.lang["lang_same"].format(selected_name), show_alert=True
         )
 
-    await query.answer(query.lang["lang_change"].format(_lang), show_alert=True)
-    await db.set_lang(query.message.chat.id, _lang)
-    await query.edit_message_text(query.lang["lang_changed"].format(_lang))
+    await db.set_lang(query.message.chat.id, selected)
+    selected_lang = lang.languages[selected]
+    await query.answer(
+        selected_lang["lang_change"].format(selected_name), show_alert=True
+    )
+    await query.edit_message_text(selected_lang["lang_changed"].format(selected_name))
+
+    if action == "lang_start":
+        await _send_private_start(query, selected_lang)
