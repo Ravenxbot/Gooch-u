@@ -23,8 +23,10 @@ class Thumbnail:
 
     async def start(self) -> None:
         self.session = aiohttp.ClientSession()
+
     async def close(self) -> None:
-        await self.session.close()
+        if self.session and not self.session.closed:
+            await self.session.close()
 
     async def save_thumb(self, output_path: str, url: str) -> str:
         async with self.session.get(url) as resp:
@@ -47,7 +49,8 @@ class Thumbnail:
 
             _rect = ImageOps.fit(
                 thumb, self.rect,
-                method=Image.LANCZOS, centering=(0.5, 0.5),
+                # Use Pillow's Resampling enum instead of legacy module constants.
+                method=Image.Resampling.LANCZOS, centering=(0.5, 0.5),
             )
             ImageDraw.Draw(self.mask).rounded_rectangle(
                 (0, 0, self.rect[0], self.rect[1]),

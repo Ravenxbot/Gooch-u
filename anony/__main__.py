@@ -23,30 +23,36 @@ async def idle():
     await stop_event.wait()
 
 async def main():
-    await db.connect()
-    await app.boot()
-    await userbot.boot()
-    await anon.boot()
-    await thumb.start()
+    started = False
+    try:
+        await db.connect()
+        await app.boot()
+        await userbot.boot()
+        await anon.boot()
+        await thumb.start()
+        started = True
 
-    for module in all_modules:
-        importlib.import_module(f"anony.plugins.{module}")
-    logger.info(f"Loaded {len(all_modules)} modules.")
+        for module in all_modules:
+            importlib.import_module(f"anony.plugins.{module}")
+        logger.info(f"Loaded {len(all_modules)} modules.")
 
-    if config.COOKIES_URL:
-        await yt.save_cookies(config.COOKIES_URL)
+        if config.COOKIES_URL:
+            await yt.save_cookies(config.COOKIES_URL)
 
-    sudoers = await db.get_sudoers()
-    app.sudoers.update(sudoers)
-    app.bl_users.update(await db.get_blacklisted())
-    logger.info(f"Loaded {len(app.sudoers)} sudo users.")
+        sudoers = await db.get_sudoers()
+        app.sudoers.update(sudoers)
+        app.bl_users.update(await db.get_blacklisted())
+        logger.info(f"Loaded {len(app.sudoers)} sudo users.")
 
-    await idle()
-    asyncio.create_task(stop())
+        await idle()
+    finally:
+        # Await shutdown so cleanup completes before asyncio.run closes the loop.
+        await stop(ignore_cleanup_errors=not started)
 
 
 if __name__ == "__main__":
     try:
-        asyncio.get_event_loop().run_until_complete(main())
+        # asyncio.run is the modern entry point and manages loop lifecycle cleanup.
+        asyncio.run(main())
     except KeyboardInterrupt:
         pass

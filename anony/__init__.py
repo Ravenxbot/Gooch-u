@@ -6,6 +6,7 @@
 import time
 import asyncio
 import logging
+from contextlib import suppress
 from logging.handlers import RotatingFileHandler
 
 logging.basicConfig(
@@ -62,18 +63,19 @@ from anony.core.calls import TgCall
 anon = TgCall()
 
 
-async def stop() -> None:
+async def stop(ignore_cleanup_errors: bool = False) -> None:
     logger.info("Stopping...")
     for task in tasks:
         task.cancel()
-        try:
+        with suppress(asyncio.exceptions.CancelledError):
             await task
-        except asyncio.exceptions.CancelledError:
-            pass
 
-    await app.exit()
-    await userbot.exit()
-    await db.close()
-    await thumb.close()
+    for closer in (app.exit, userbot.exit, db.close, thumb.close):
+        if ignore_cleanup_errors:
+            # Partial startup cleanup should not hide the original boot failure.
+            with suppress(Exception):
+                await closer()
+        else:
+            await closer()
 
     logger.info("Stopped.\n")

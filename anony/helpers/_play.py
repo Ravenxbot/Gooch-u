@@ -71,7 +71,8 @@ def checkUB(play):
                         )
             except errors.ChatAdminRequired:
                 return await m.reply_text(m.lang["admin_required"])
-            except (errors.UserNotParticipant, errors.exceptions.bad_request_400.UserNotParticipant):
+            # Kurigram exposes this at the top level; avoid the old internal namespace.
+            except errors.UserNotParticipant:
                 if m.chat.username:
                     invite_link = m.chat.username
                     try:
