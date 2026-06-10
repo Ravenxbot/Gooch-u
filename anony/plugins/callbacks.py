@@ -11,6 +11,12 @@ from anony import anon, app, db, lang, queue, tg, yt
 from anony.helpers import admin_check, buttons, can_manage_vc
 
 
+async def _edit_help_message(query: types.CallbackQuery, text: str, reply_markup):
+    if query.message.caption is not None:
+        return await query.edit_message_caption(caption=text, reply_markup=reply_markup)
+    return await query.edit_message_text(text=text, reply_markup=reply_markup)
+
+
 @app.on_callback_query(filters.regex("cancel_dl") & ~app.bl_users)
 @lang.language()
 async def cancel_dl(_, query: types.CallbackQuery):
@@ -128,10 +134,16 @@ async def _controls(_, query: types.CallbackQuery):
 async def _help(_, query: types.CallbackQuery):
     data = query.data.split()
     if len(data) == 1:
-        return await query.answer(url=f"https://t.me/{app.username}?start=help")
+        await query.answer()
+        return await _edit_help_message(
+            query,
+            text=query.lang["help_menu"],
+            reply_markup=buttons.help_markup(query.lang),
+        )
 
     if data[1] == "back":
-        return await query.edit_message_text(
+        return await _edit_help_message(
+            query,
             text=query.lang["help_menu"], reply_markup=buttons.help_markup(query.lang)
         )
     elif data[1] == "close":
@@ -141,7 +153,8 @@ async def _help(_, query: types.CallbackQuery):
         except Exception:
             return
 
-    await query.edit_message_text(
+    await _edit_help_message(
+        query,
         text=query.lang[f"help_{data[1]}"],
         reply_markup=buttons.help_markup(query.lang, True),
     )
