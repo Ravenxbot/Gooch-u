@@ -4,8 +4,9 @@
 
 
 import asyncio
-import signal
 import importlib
+import signal
+import sys
 from contextlib import suppress
 
 from anony import (anon, app, config, db, logger,
@@ -103,9 +104,21 @@ async def main():
             cleanup_signal_handlers()
 
 
+def run_main():
+    if sys.platform != "win32":
+        try:
+            import uvloop
+        except ImportError:
+            pass
+        else:
+            uvloop.run(main())
+            return
+
+    asyncio.run(main())
+
+
 if __name__ == "__main__":
     try:
-        # asyncio.run is the modern entry point and manages loop lifecycle cleanup.
-        asyncio.run(main())
+        run_main()
     except KeyboardInterrupt:
         pass
