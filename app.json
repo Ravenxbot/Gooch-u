@@ -42,12 +42,12 @@
         },
         "SUPPORT_CHANNEL": {
             "description": "Telegram updates channel URL, username, or numeric chat ID. For private IDs, the bot must be admin with invite link permission.",
-            "value": "https://t.me/SuMelodyVibes",
+            "value": "https://t.me/darkquid",
             "required": false
         },
         "SUPPORT_CHAT": {
             "description": "Telegram support group URL, username, or numeric chat ID. For private IDs, the bot must be admin with invite link permission.",
-            "value": "https://t.me/SuMelodyVibes",
+            "value": "https://t.me/Aurorasupportgroup",
             "required": false
         },
         "API_URL": {
