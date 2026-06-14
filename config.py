@@ -22,8 +22,8 @@ class Config:
         self.SESSION2 = getenv("SESSION2", None)
         self.SESSION3 = getenv("SESSION3", None)
 
-        self.SUPPORT_CHANNEL_RAW = getenv("SUPPORT_CHANNEL", "https://t.me/SuMelodyVibes")
-        self.SUPPORT_CHAT_RAW = getenv("SUPPORT_CHAT", "https://t.me/SuMelodyVibes")
+        self.SUPPORT_CHANNEL_RAW = getenv("SUPPORT_CHANNEL", "https://t.me/darkquid")
+        self.SUPPORT_CHAT_RAW = getenv("SUPPORT_CHAT", "https://t.me/Aurorasupportgroup")
         self.SUPPORT_CHANNEL = self.SUPPORT_CHANNEL_RAW
         self.SUPPORT_CHAT = self.SUPPORT_CHAT_RAW
 
