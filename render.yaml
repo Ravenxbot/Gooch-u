@@ -24,9 +24,9 @@ services:
       - key: SESSION
         sync: false
       - key: SUPPORT_CHANNEL
-        value: "https://t.me/SuMelodyVibes"
+        value: "https://t.me/darkquid"
       - key: SUPPORT_CHAT
-        value: "https://t.me/SuMelodyVibes"
+        value: "https://t.me/Aurorasupportgroup"
       - key: API_URL
         value: ""
       - key: API_KEY
