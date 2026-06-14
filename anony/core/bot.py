@@ -8,7 +8,7 @@ import pyrogram
 from anony import config, logger
 
 
-DEFAULT_SUPPORT_LINK = "https://t.me/SuMelodyVibes"
+DEFAULT_SUPPORT_LINK = "https://t.me/Aurorasupportgroup"
 TELEGRAM_LINK_PREFIXES = ("https://t.me/", "http://t.me/", "t.me/", "telegram.me/")
 
 
